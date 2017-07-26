@@ -368,6 +368,7 @@ int main(int argc, char *argv[])
 				idisp = itmp;
 			}
 			freeImage(inew);
+			inew = idisp;
 		}
 
 		/*
