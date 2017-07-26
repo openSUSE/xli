@@ -1,3 +1,10 @@
+*.orig
+*~
+*.swp
+*.rej
+*.patch
+*.diff
+
 # Prerequisites
 *.d
 
