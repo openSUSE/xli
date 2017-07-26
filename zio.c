@@ -436,13 +436,8 @@ _zopen(ZFILE *zf)
 
 	/* File is now open, so see if it is a uuencoded file */
 	while (uutry-- > 0) {
-		if (fgets(uuibuf, UULEN, zf->stream) != NULL) {
-			int blen;
-			blen = buflen(uuibuf, UULEN);
-			if (blen < 0) {		/* doesn't look like reasonable junk */
-				_zaptocache(zf, uuibuf, -blen);
-				break;
-			}
+		int blen;
+		if ((blen = fread(uuibuf, 1, UULEN, zf->stream)) > 0) {
 			_zaptocache(zf, uuibuf, blen);	/* keep zfile data cached */
 			if (!strncmp(uuibuf, "begin ", 6)
 			    && isdigit(uuibuf[6])
