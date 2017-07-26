@@ -9,7 +9,7 @@
 # -DHAVE_BOOLEAN  if your system declares 'boolean' somewhere
 # -DHAVE_BUNZIP2  if you have bzip2 and want to handle .bz2 files
 
-#ifdef HPArchitecture
+#if defined(HPArchitecture) && !defined(LinuxArchitecture)
       CCOPTIONS = -Aa -D_HPUX_SOURCE
 #endif
 
@@ -38,8 +38,8 @@ ComplexProgramTarget_2(xlito,,)
 
 install:: $(SYSPATHFILE)
 	$(RM) $(BINDIR)/xview $(BINDIR)/xsetbg
-	$(LN) $(BINDIR)/xli $(BINDIR)/xview
-	$(LN) $(BINDIR)/xli $(BINDIR)/xsetbg
+	$(LN) xli $(BINDIR)/xview
+	$(LN) xli $(BINDIR)/xsetbg
 
 $(SYSPATHFILE):
 	@echo "*** Creating default $(SYSPATHFILE) since you"
