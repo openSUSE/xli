@@ -463,7 +463,16 @@ Image *xpixmapLoad(char *fullname, ImageOptions * image_ops, boolean verbose)
 			} else
 				p = buf;
 
-			if (!xliParseXColor(&globals.dinfo, p, &xcolor)) {
+			if( strcmp(p, "None") == 0 ) {
+				if( image_ops->bg ) {
+					if (!xliParseXColor(&globals.dinfo, image_ops->bg, &xcolor)) {
+						fprintf(stderr, "xpixmapLoad: Bad background color name '%s'\n", image_ops->bg);
+						xcolor.red = xcolor.green = xcolor.blue = 0;
+					}
+				} else {
+					xcolor.red = xcolor.green = xcolor.blue = 0;
+				}
+			} else if (!xliParseXColor(&globals.dinfo, p, &xcolor)) {
 				fprintf(stderr, "xpixmapLoad: %s - Bad color name '%s'\n", name, p);
 				xcolor.red = xcolor.green = xcolor.blue = 0;
 			}
