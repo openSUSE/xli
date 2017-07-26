@@ -55,8 +55,8 @@ static void freePrevious(Display * dpy, Window w)
 	Pixmap *pm;
 	Atom actual_type;	/* NOTUSED */
 	int format;
-	int nitems;
-	int bytes_after;
+       unsigned long	nitems;
+       unsigned long	bytes_after;
 
 	/* intern the property name */
 	Atom atom = XInternAtom(dpy, RETAIN_PROP_NAME, 0);
@@ -64,8 +64,7 @@ static void freePrevious(Display * dpy, Window w)
 	/* look for existing resource allocation */
 	if ((XGetWindowProperty(dpy, w, atom, 0, 1, 1 /*delete */ ,
 				AnyPropertyType, &actual_type, &format,
-				(unsigned long *) &nitems,
-				(unsigned long *) &bytes_after,
+				&nitems, &bytes_after,
 				(unsigned char **) &pm) == Success) &&
 	    nitems == 1) {
 		if ((actual_type == XA_PIXMAP) && (format == 32) &&
@@ -162,14 +161,13 @@ void imageOnRoot(DisplayInfo * dinfo, Image * image, ImageOptions * options)
 		for (i = 0; i < numChildren; i++) {
 			Atom actual_type;
 			int actual_format;
-			long nitems, bytesafter;
+			unsigned long nitems, bytesafter;
 			Window *newRoot = NULL;
 
 			if (XGetWindowProperty(disp, children[i], __SWM_VROOT,
 					0, 1, FALSE, XA_WINDOW, &actual_type,
 					&actual_format,
-					(unsigned long *) &nitems,
-					(unsigned long *) &bytesafter,
+					&nitems, &bytesafter,
 					(unsigned char **) &newRoot)
 					== Success && newRoot) {
 				root = *newRoot;

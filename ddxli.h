@@ -14,7 +14,7 @@
 #include <sys/shm.h>
 #include <X11/extensions/XShm.h>
 
-#if defined(SYSV) || defined(VMS)
+#if defined(SYSV) || defined(VMS) || defined __GLIBC__
 #include <string.h>
 #ifndef index			/* some SysV's do this for you */
 #define index strchr
