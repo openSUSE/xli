@@ -1,0 +1,129 @@
+XLI - X11 Image Loading Utility
+
+WHAT IS IT?
+
+xli is an image display program for X, created by Graeme Gill from Jim
+Frost's xloadimage, and currently maintained by smar@reptiles.org.
+
+xli will view several types of images under X11, or load images onto
+the X11 root window. The current version (1.17) supports:
+
+	CMU Window Manager raster files
+	Faces Project images
+	Fuzzy Bitmap (.fbm) images
+	GEM bit images
+	GIF images (Including GIF89a compatibility)
+	G3 FAX images
+	JFIF style JPEG images
+	McIDAS areafiles
+	MacPaint images
+	Windows, OS/2 BMP Image
+	Monochrome PC Paintbrush (.pcx) images
+	Photograph on CD Image
+	Portable Bitmap (.pbm, .pgm, .ppm) images
+	Portable Network Graphics (PNG) images
+	Sun monochrome rasterfiles
+	Sun color RGB rasterfiles
+	Targa (.tga) files
+	Utah Raster Toolkit (.rle) files
+	X pixmap (.xpm) files (Version 1, 2C and 3)
+	X10 bitmap files
+	X11 bitmap files
+	X Window Dump (except TrueColor and DirectColor)
+
+A variety of options are available to modify images prior to viewing.
+These options include clipping, dithering, depth reduction, zoom (either X
+or Y axis independently or both at once), brightening or darkening, input
+gamma correction, and image merging.  When applicable, these options are
+done automatically (eg. a color image to be displayed on a monochrome
+screen will be dithered automatically). A utility (xlito) is provided
+that allows these viewing options to be appended to the image files.
+
+CHANGES FROM XLI 1.16
+
+    Converted source code to ANSI C prototypes.
+
+    Removed MSDOS support (Sorry!  Anyone want to add Win32 support?)
+
+    Added PNG file format loader.
+
+    Added support for MIT shared memory extension.
+
+    Rewrote JPEG file format loader to use the IJG library, to take
+    advantage of performance improvements and support progressive
+    scan JPEGs.
+
+    Added the -delete, -iscale, -focus, and -cache options.
+
+    Added interactive image fast scaling with the '<', '>' and '=' keys.
+
+    Added TODO file.  Feel free to do anything on the list, or offer
+    your own fixes and enhancements.
+
+HOW IS XLI RELATED TO XLOADIMAGE ?
+
+    xloadimage is maintained by Jim Frost - jimf@saber.com
+
+    xli version 1.00 was based on xloadimage version 3.01.
+
+    xli was maintained by Graeme Gill - graeme@labtam.oz.au, up to
+    version 1.16.
+
+    xli is currently maintained by smar@reptiles.org
+
+    Please read README.xloadimage, which is the original xloadimage
+    README file for xloadimage info and credits.
+
+WHERE CAN I GET IT ?
+
+	http://pantransit.reptiles.org/prog/#xli
+
+COMPILING
+
+    There are a variety of ways to compile xli, depending on what
+    environment you have.
+
+    The easiest way of compiling it is to use the Imakefile. Simply
+    run 'xmkmf' (which should be in your systems /usr/bin/X11 or
+    somewhere equivalent), which should make a Makefile suitable
+    for your system. Type 'make' to then build xli. It can be
+    installed in the standard place (along with its aliases xview
+    and xsetbg) by typing 'make install'. The manual entry can
+    be installed using 'make install.man'.
+
+    The JPEG reader assumes that you have the IJG JPEG library somewhere.
+    You can get it from ftp://ftp.uu.net/graphics/jpeg/.
+
+    The PNG reader assumes you have the PNG group's library and zlib.
+    They're at http://www.cdrom.com/pub/png/pngcode.html, along with a
+    lot of other PNG stuff.  You'll need libpng-1.0.5 or later.
+
+    If using the Imakefile is not possible, then you can try using
+    Makefile.std. Choose your target from 
+
+	std			BSD environment
+	sysv			SYSV environment
+	gcc			BSD using gcc
+	sysv-gcc		SYSV using older gcc
+
+    and use something like:
+
+	make -f Makefile.std target
+
+    There are a few compilation flags that you may need/want to change.
+    This can be done in the Makefile.std file. The defines are:
+
+	-DHAVE_GUNZIP if you want to use gunzip rather than uncompress
+	on .Z files
+
+	-DNO_UNCOMPRESS if you system doesn't have uncompress or gunzip.
+
+SUGGESTIONS AND BUG REPORTS
+
+    xli has been developed in a fairly limited hardware environment, and
+    not all combinations of displays and/or image formats and options have
+    been tested. xli is useful to me, and maybe it will be useful to you.
+
+    Suggestions and bug reports should go to:
+
+    smar@reptiles.org

@@ -1,0 +1,288 @@
+.\" @(#)x11:contrib/clients/xloadimage/xliguide.man 1.2 93/07/23 Labtam
+.\"
+.de Sc	\" start of code. no re-arrange, no fill, constant width etc.
+\f(CW
+.na
+.nf
+..
+.de Ec	\" end of code. no re-arrange, no fill, constant width etc.
+\fR
+.ad
+.fi
+..
+.TH "XLI LOADER GUIDE" 5
+.SH "Guide to writing image loaders for xli"
+This is a introduction on how an image load routine should be written,
+and what resources are available for use by the writer.
+
+.SH "Include files"
+The include file xli.h is generally sufficient to make
+all the xli resources available: ie:
+.sp
+.ti +5
+#include "xli.h"
+.PP
+.SH "Identify function"
+The identification function is used to implement the \fI-identify\fR option
+of xli. It is generally of the form :
+.Sc
+int xyyzIdent(fullname, name)
+     char \(**fullname, \(**name;
+{
+}
+.Ec
+.PP
+where this is an xyyz type image loader file.
+.PP
+fullname is the name including path, while name is the short
+name of the file that is used as a title, or to refer to the file
+in messages.
+.PP
+Return 0 if the image is NOT identified.
+.PP
+Return 1 if the image IS identified.
+.PP
+If the file is identified, use a message something like:
+.Sc
+printf("%s is a %dx%d xyyz image with %d colors\\n",
+	 name, width, height, ncolors);
+.Ec
+.PP
+Try and be quick about identifying the image - don't read the whole image
+just to identify it !
+.PP
+Use printf even if something is wrong with the file.
+Use perror for a system error - ie. unable to open file.
+.SH "Loading the image"
+The load function is used to identify and load the file if it is
+recognized. It is of the form:
+.Sc
+Image xyyzLoad(fullname, image_ops, verbose)
+     ImageOptions \(**image_ops;
+     char         \(**fullname;
+     boolean       verbose;
+{
+}
+.Ec
+.PP
+Identify the image as quickly as possible.
+.PP
+Return NULL if the image is not identified.
+.PP
+Otherwise Return a pointer to an image structure with the image in it.
+.PP
+If the image is properly identified, but there is something wrong with it
+before anything useful is read in, report the error  - ie.
+.Sc
+fprintf(stderr,"xyyzLoad: %s - corrupted color map\\n",name);
+.Ec
+.PP
+clean up (ie. release the image structure and any allocated memory) and
+return NULL.
+.PP
+If the image is properly identified, and there is something wrong with it,
+but something useful has been read in (ie. color maps etc. have been
+loaded, and part of the image is loaded), report the error using
+fprintf (as above) and return what there is of the image.
+.PP
+Remember to release and temporary memory allocated on returning, whether
+the image is loaded ok, or if something goes wrong.
+.PP
+Remember to read any trailing options before returning a successfully loaded
+image, and before closing the file.
+Trailing options are read by calling the function:
+.Sc
+read_trail_opt(image_ops, zf, image, verbose)
+    ImageOptions \(**image_ops;
+    ZFILE        \(**zf;
+    Image        \(**image;
+    boolean       verbose;
+.Ec
+.PP
+Remember to close the file before returning.
+.PP
+Remember to add any additional info to the image structure -
+ie. name, gamma if known etc.
+.PP
+NEVER EVER exit(). There may be other image loaders and other images to load.
+.PP
+Use printf to give verbose output on image details.
+.PP
+Use fprintf(stderr," ... ");  to give error warning if the file is corrupted.
+.PP
+use perror for a system error - ie. unable to open file.
+.SH "Useful info in image_ops:"
+.Sc
+
+	char         \(**name;         /\(** Short name of image \(**/
+.Ec
+.SH "Useful things to set in the image structure:"
+.Sc
+
+	char         \(**title;  /\(** name of image \(**/
+	RGBMap        rgb;    / RGB map of image if IRGB type \(**/
+	byte         \(**data;   /\(** data, rounded to full byte for each row \(**/
+	float		  gamma;	/\(** gamma of display the image is adjusted \(**/
+	     		        	/\(** for, if know. \(**/
+.Ec
+.SH "Creating and destroying Image structures:"
+The image structure is created by a call to one of three routines:
+.Sc
+/\(** For a monochrome bitmap \(**/
+Image \(**newBitImage(width, height)
+     unsigned int width, height;
+
+/\(** For a color image with a color map \(**/
+Image \(**newRGBImage(width, height, depth)
+     unsigned int width, height, depth;
+
+/\(** For a true color image \(**/
+Image \(**newTrueImage(width, height)
+     unsigned int width, height;
+.Ec
+.PP
+And the image can be freed with:
+.Sc
+void freeImageData(image)
+     Image \(**image;
+.Ec
+.PP
+Examine another image loader (ie. gif.c) to see how to set up a color map.
+.SH "File input resources:"
+A set of file input functions are available that automatically handle
+compressed files, and also by default buffer the file in memory to speed
+up the detection of the image type. The following functions are available:
+.Sc
+/\(**
+  Open a file by name and return a pointer to
+  a file descriptor.
+ \(**/
+ZFILE \(**zopen(name)
+     char \(**name;
+
+/\(**
+  Read some data into a buffer
+ \(**/
+int zread(zf, buf, len)
+     ZFILE \(**zf;
+     byte \(**buf;
+     int len;
+
+/\(**
+  Macro that returns a character from the file.
+ \(**/
+zgetc(zf)
+     ZFILE \(**zf;
+
+/\(**
+  Function that reads a string into a buffer
+ \(**/
+char \(**zgets(buf, size, zf)
+     char         \(**buf;
+     unsigned int  size;
+     ZFILE        \(**zf;
+
+/\(** Return the files EOF status \(**/
+int zeof(zf)
+     ZFILE \(**zf;
+
+/\(**
+  Clear any errors (ie. EOF)
+ \(**/
+void zclearerr(zf)
+     ZFILE \(**zf;
+
+/\(**
+  Turn off caching when an image has been identified
+  and there is no need to re-open it. The cached part
+  of the file is still kept, but any reads past this
+  point are not cached.
+ \(**/
+void znocache(zf)
+     ZFILE \(**zf;
+
+/\(**
+  Rewind the cached file. This won't work if the file
+  is stdin and we have read past the cached part of
+  the file. Return TRUE on success.
+ \(**/
+boolean zrewind(zf)
+     ZFILE \(**zf;
+
+/\(**
+  Return a block of data back to the input stream.
+  Useful for a load routine that does its own buffering
+  and wants to return what is left after it has read
+  an image. (This is needed to allow trailing options
+  to be recognized.) Can also be used instead of ungetc().
+ \(**/
+void zunread(zf, buf, len)
+     ZFILE \(**zf;
+     byte \(**buf;
+     int len;
+
+/\(**
+  Close a file.
+  The file is not actually closed until zreset is called,
+  in case another loader wants to re-open it.
+ \(**/
+void zclose(zf)
+     ZFILE \(**zf;
+
+/\(**
+  Really close a file. Not used by imageLoad functions.
+ \(**/
+void zreset(filename)
+     char \(**filename;
+.Ec
+.PP
+Some macros are provided to facilitate reading and writing elements larger
+than a character from/to a data buffer according to the desired endianness:
+.PP
+Big endian:
+.Sc
+#define memToVal(PTR,LEN)
+
+#define valToMem(VAL,PTR,LEN)
+.Ec
+.PP
+Little Endian
+.Sc
+#define memToValLSB(PTR,LEN)
+
+#define valToMemLSB(VAL,PTR,LEN)
+.Ec
+.SH "Memory allocation:"
+The built in memory allocation routines are guaranteed not to fail.
+.Sc
+/\(** Duplicate a string. Good for making up the image title etc. \(**/
+char \(**dupString(s)
+     char \(**s;
+
+byte \(**lmalloc(size)
+     unsigned int size;
+
+byte \(**lcalloc(size)
+     unsigned int size;
+
+void lfree(area)
+     byte \(**area;
+.Ec
+.PP
+Be careful not to call lfree with NULL. It may cause a fault.
+.SH "Other facilities:"
+Memory manipulation
+.Sc
+/\(** Copy a block of memory \(**/
+bcopy(S,D,N)
+
+/\(** Zero a block of memory \(**/
+bzero(P,N)
+
+/\(** Fill a block of memory with a value \(**/
+bfill(P,N,C)
+.Ec
+.SH "If all else fails:"
+Read the source. xli.h and image.h are a good place to start. Look
+at one of the existing loaders ie. pcx.c Grep for anything else!
+

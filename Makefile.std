@@ -1,0 +1,144 @@
+# Makefile for xli. 
+# Use this to make default BSD or SYSV xli builds
+
+# miscellaneous defines.
+# -DHAVE_GUNZIP if you want to use gunzip rather than uncompress on .Z files
+# -DHAVE_BUNZIP2 if you have bzip2 and want to handle .bz2 files
+# -DNO_UNCOMPRESS if you system doesn't have uncompress
+
+MISC_DEFINES=
+
+SYSPATHFILE=/usr/lib/X11/Xli
+INSTALLDIR=/usr/bin/X11
+SHELL= /bin/sh
+MAKE= make
+STD_CC= cc
+GCC= gcc
+CP= cp
+LN= ln -s
+RM= rm -f
+MV= mv -f
+LIBS= -lX11 -lm
+CFLAGS= -O -DSYSPATHFILE=\"$(SYSPATHFILE)\" $(OPTIONALFLAGS) $(EXTRAFLAGS)
+GCCFLAGS= -fstrength-reduce -finline-functions
+
+MISC= Makefile.std Imakefile README ABOUTGAMMA \
+      README.orig xli.man xli.txt xlito.man xlito.txt xliguide.man \
+      patchlevel release 
+
+BINMISC= chkgamma.jpg
+
+INCS= cmuwmrast.h copyright.h fbm.h g3.h gif.h image.h imagetypes.h \
+      img.h kljcpyrght.h mac.h mcidas.h mrmcpyrght.h options.h \
+      pbm.h rle.h sunraster.h tgncpyrght.h xli.h xwd.h mit.cpyrght rgbtab.h \
+      tga.h bmp.h pcd.h ddxli.h
+
+SRCS1= bright.c clip.c cmuwmrast.c compress.c dither.c faces.c fbm.c \
+       fill.c  g3.c gif.c halftone.c imagetypes.c img.c mac.c mcidas.c \
+       mc_tables.c merge.c misc.c new.c options.c path.c pbm.c pcx.c \
+       reduce.c jpeg.c rle.c rlelib.c root.c rotate.c send.c smooth.c \
+       sunraster.c $(OPTIONALSFILES) value.c window.c xbitmap.c xli.c \
+       xpixmap.c xwd.c zio.c zoom.c ddxli.c tga.c bmp.c pcd.c png.c
+
+OBJS1= bright.o clip.o cmuwmrast.o compress.o dither.o faces.o fbm.o \
+       fill.o  g3.o gif.o halftone.o imagetypes.o img.o mac.o mcidas.o \
+       mc_tables.o merge.o misc.o new.o options.o path.o pbm.o pcx.o \
+       reduce.o jpeg.o rle.o rlelib.o root.o rotate.o send.o smooth.o \
+       sunraster.o $(OPTIONALOFILES) value.o window.o xbitmap.o xli.o \
+       xpixmap.o xwd.o zio.o zoom.o ddxli.o tga.o bmp.o pcd.o png.o
+
+SRCS2= xlito.c
+
+OBJS2= xlito.o
+
+ALLTXT= $(MISC) $(INCS) $(SRCS1) $(SRCS2)
+
+ALL= $(ALLTXT) $(BINMISC)
+
+# standard target.  this is for BSD-like environments, generally, although
+# it will also work in many System-V environments.
+
+std:
+	@echo "Building standard distribution.  If this fails, consider trying"
+	@echo "'make sysv'."
+	$(MAKE) all CC=$(STD_CC)
+
+# system-v target.  use this if you have a system-v compliant system.
+	
+sysv:
+	@echo "Building standard distribution for System-V."
+	$(MAKE) all CC=$(STD_CC) EXTRAFLAGS=-DSYSV
+
+# gcc target.  use this if you have a gcc that is not version 1.37.  you
+# should add -DSYSV between the quotes in EXTRAFLAGS if your system is
+# system-v compliant as well.
+
+gcc:
+	@echo "Building distribution with GNU cc."
+	$(MAKE) all CC=$(GCC) EXTRAFLAGS="$(GCCFLAGS)"
+
+sysv-gcc:
+	@echo "Building System-V distribution with GNU cc."
+	$(MAKE) all CC=$(GCC) EXTRAFLAGS="-DSYSV $(GCCFLAGS)"
+
+install:: $(SYSPATHFILE)
+	$(RM) $(INSTALLDIR)/xli
+	$(RM) $(INSTALLDIR)/xsetbg
+	$(RM) $(INSTALLDIR)/xview
+	$(CP) xli $(INSTALLDIR)/xli
+	$(LN) $(INSTALLDIR)/xli $(INSTALLDIR)/xsetbg
+	$(LN) $(INSTALLDIR)/xli $(INSTALLDIR)/xview
+
+xli: $(OBJS1)
+	$(CC) $(CFLAGS) -o xli $(OBJS1) $(LIBS)
+
+xlito: $(OBJS2)
+	$(CC) $(CFLAGS) -o xlito $(OBJS2)
+
+all:: xli xlito
+
+.c.o: xli.h
+	$(CC) -c $(CFLAGS) $*.c
+
+clean::
+	rm -f *.o *~ xli xlito buildshar doshar shar.* *.tar *.tar.gz
+
+$(SYSPATHFILE):
+	@echo "*** Creating default $(SYSPATHFILE) since you"
+	@echo "*** don't have one. This file is used to set up default places"
+	@echo "*** and names to look for images.  You probably want to edit"
+	@echo "*** it for your site.  See the xli manual page for"
+	@echo "*** details on the contents of this file."
+	cp /dev/null $(SYSPATHFILE)
+	echo "path= /usr/local/images" \
+		>> $(SYSPATHFILE)
+	echo "extension=.gif .jpg .rle .csun .msun .sun .face .xbm .bm" \
+		>>$(SYSPATHFILE)
+
+# target for making man and text manual entries
+
+xli.1: xli.man
+	$(RM) xli.1
+	nroff -T37 -man xli.man > xli.1
+
+xli.txt: xli.man
+	$(RM) xli.txt
+	nroff -man -Tlp xli.man | col -b > xli.txt
+
+xlito.1: xlito.man
+	$(RM) xlito.1
+	nroff -T37 -man xlito.man > xlito.1
+
+xlito.txt: xlito.man
+	$(RM) xlito.txt
+	nroff -man -Tlp xlito.man | col -b > xlito.txt
+
+# target for building debuggable versions
+
+debug:
+	@echo Building a debugging version of xli.
+	make xli CC=$(STD_CC) CFLAGS="-g -DDEBUG -DSYSPATHFILE=\\\"$(SYSPATHFILE)\\\""
+
+debug-sysv:
+	@echo Building a debugging version of xli for System-V.
+	make xli CC=$(STD_CC) CFLAGS="-g -DDEBUG -DSYSPATHFILE=\\\"$(SYSPATHFILE)\\\" -DSYSV"

@@ -1,0 +1,5 @@
+/* this defines the version and patchlevel of this version of xli */
+
+#define VERSION      "1"
+#define PATCHLEVEL   "17"
+#define AUTHOR_EMAIL "smar@reptiles.org"

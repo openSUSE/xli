@@ -1,0 +1,56 @@
+# Imakefile for building within the X11 source tree.
+#
+# If you have problems building, read the README file and use Makefile.std.
+#
+# Put these in DEFINES below if needed:
+#
+# -DHAVE_GUNZIP  use gunzip instead of uncompress
+# -DNO_UNCOMPRESS  if you don't have uncompress
+# -DHAVE_BOOLEAN  if your system declares 'boolean' somewhere
+# -DHAVE_BUNZIP2  if you have bzip2 and want to handle .bz2 files
+
+#ifdef HPArchitecture
+      CCOPTIONS = -Aa -D_HPUX_SOURCE
+#endif
+
+JPEG_INCLUDES = 
+JPEG_LDFLAGS = 
+
+PNG_INCLUDES = 
+PNG_LDFLAGS = 
+
+SYSPATHFILE = $(XAPPLOADDIR)/Xli
+DEPLIBS = $(DEPXLIB)
+LOCAL_LIBRARIES = $(XLIB) $(JPEG_LDFLAGS) $(PNG_LDFLAGS) -ljpeg -lpng -lz
+SYS_LIBRARIES = -lm
+DEFINES = -DHAS_MEMCPY
+EXTRA_INCLUDES = $(JPEG_INCLUDES) $(PNG_INCLUDES)
+
+SRCS1 = bright.c clip.c cmuwmrast.c compress.c dither.c faces.c fbm.c fill.c  g3.c gif.c halftone.c imagetypes.c img.c mac.c mcidas.c mc_tables.c merge.c misc.c new.c options.c path.c pbm.c pcx.c reduce.c jpeg.c rle.c rlelib.c root.c rotate.c send.c smooth.c sunraster.c  value.c window.c xbitmap.c xli.c xpixmap.c xwd.c zio.c zoom.c ddxli.c tga.c bmp.c pcd.c png.c
+OBJS1 = bright.o clip.o cmuwmrast.o compress.o dither.o faces.o fbm.o fill.o  g3.o gif.o halftone.o imagetypes.o img.o mac.o mcidas.o mc_tables.o merge.o misc.o new.o options.o path.o pbm.o pcx.o reduce.o jpeg.o rle.o rlelib.o root.o rotate.o send.o smooth.o sunraster.o  value.o window.o xbitmap.o xli.o xpixmap.o xwd.o zio.o zoom.o ddxli.o tga.o bmp.o pcd.o png.o
+SRCS2 = xlito.c
+OBJS2 = xlito.o
+
+PROGRAMS = xli xlito
+
+ComplexProgramTarget_1(xli,$(DEFINES) $(LOCAL_LIBRARIES),)
+ComplexProgramTarget_2(xlito,,)
+
+install:: $(SYSPATHFILE)
+	$(RM) $(BINDIR)/xview $(BINDIR)/xsetbg
+	$(LN) $(BINDIR)/xli $(BINDIR)/xview
+	$(LN) $(BINDIR)/xli $(BINDIR)/xsetbg
+
+$(SYSPATHFILE):
+	@echo "*** Creating default $(SYSPATHFILE) since you"
+	@echo "*** don't have one. This file is used to set up default places"
+	@echo "*** and names to look for images.  You probably want to edit"
+	@echo "*** it for your site.  See the xloadimage manual page for"
+	@echo "*** details on the contents of this file."
+	cp /dev/null $(SYSPATHFILE)
+	echo "path=$(INCDIR)/bitmaps $(INCDIR)/images" \
+		>> $(SYSPATHFILE)
+	echo "extension=.gif .jpg .rle .csun .msun .sun .face .xbm .bm" \
+		>>$(SYSPATHFILE)
+	chmod a+r $(SYSPATHFILE)
+

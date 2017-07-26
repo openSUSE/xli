@@ -1,0 +1,28 @@
+fix 16-bit PGM crash bug
+
+fix PNG loading bug for interlaced depth 1 grayscale images with a
+background colour, and improve handling of grayscale and paletted PNG
+images with transparency
+
+fix crash on interactive zoom with -clip set
+
+fix bug where -fillscreen only applies to first image
+
+make MIT-SHM conditional for systems that don't have it
+
+document -delete, -iscale, -focus, -cache, '>', '<', and '='
+
+and NEVER MIND tweaking send.c for performance.  I mean, really, WHO ON
+EARTH CARES?  Except me, I mean.
+
+add vicar reader, copyright Noel Gorelick, gorelick@asu.edu, description:
+'VICAR: a general purpose multi-dimensional image processing package
+developed by NASA/JPL.'
+
+make fast image scaling a subfeature of -zoom, eliminate -iscale
+and add -zoom auto
+
+add a TIFF reader?
+
+add configurable external filters, action programs (making -delete
+redundant) and maybe readers
