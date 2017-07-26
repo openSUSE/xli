@@ -36,21 +36,15 @@ PROGRAMS = xli xlito
 ComplexProgramTarget_1(xli,$(DEFINES) $(LOCAL_LIBRARIES),)
 ComplexProgramTarget_2(xlito,,)
 
-install:: $(SYSPATHFILE)
-	$(RM) $(BINDIR)/xview $(BINDIR)/xsetbg
-	$(LN) xli $(BINDIR)/xview
-	$(LN) xli $(BINDIR)/xsetbg
-
-$(SYSPATHFILE):
-	@echo "*** Creating default $(SYSPATHFILE) since you"
-	@echo "*** don't have one. This file is used to set up default places"
-	@echo "*** and names to look for images.  You probably want to edit"
-	@echo "*** it for your site.  See the xloadimage manual page for"
-	@echo "*** details on the contents of this file."
-	cp /dev/null $(SYSPATHFILE)
+install::
+	$(RM) $(DESTDIR)$(BINDIR)/xview $(DESTDIR)$(BINDIR)/xsetbg
+	$(LN) xli $(DESTDIR)$(BINDIR)/xview
+	$(LN) xli $(DESTDIR)$(BINDIR)/xsetbg
+	mkdir -p $(DESTDIR)$(XAPPLOADDIR)
+	touch $(DESTDIR)$(SYSPATHFILE)
 	echo "path=$(INCDIR)/bitmaps $(INCDIR)/images" \
-		>> $(SYSPATHFILE)
+		>> $(DESTDIR)$(SYSPATHFILE)
 	echo "extension=.gif .jpg .rle .csun .msun .sun .face .xbm .bm" \
-		>>$(SYSPATHFILE)
-	chmod a+r $(SYSPATHFILE)
+		>>$(DESTDIR)$(SYSPATHFILE)
+	chmod a+r $(DESTDIR)$(SYSPATHFILE)
 
