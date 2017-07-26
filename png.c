@@ -206,6 +206,7 @@ Image *pngLoad(char *fullname, ImageOptions * opt, boolean verbose)
 			gflag = PNG_BACKGROUND_GAMMA_FILE;
 		}
 		png_set_background(png, &bg, gflag, expand, gval);
+		png_set_strip_alpha(png);
 	}
 	if (bit_depth < 8 && (bit_depth > 1 ||
 			PNG_COLOR_TYPE_GRAY != color_type)) {
