@@ -50,6 +50,7 @@ Type 1 to set the images assumed gamma to 1.0
        (usually lightens images)
 Type 5-2 to lighten the image (5 in small steps, up to 2 in large steps)
 Type 6-9 to darken the image (6 in small steps, up to 9 in large steps)
+Type > resp. < to zoom in resp. out
 .ad
 .fi
 .PP
