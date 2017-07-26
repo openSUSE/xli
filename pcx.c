@@ -5,6 +5,8 @@
 **	Adapted from code by Jef Poskanzer (see Copyright below).
 **
 **	Version 0.1 --  4/25/91 -- Initial cut
+**     Version 0.2 -- 2001-12-15 -- Support 8bit color images with palette.
+**                                  (Alexandre Duret-Lutz <duret_g@epita.fr>)
 **
 **  Copyright (c) 1991 Tim Northrup
 **	(see file "tgncpyrght.h" for complete copyright information)
@@ -33,7 +35,9 @@
 
 #define PCX_MAGIC 0x0a			/* first byte in a PCX image file */
 
-static boolean PCX_LoadImage(ZFILE *zf, int in_bpr, int img_bpr, Image *image, int rows);		/* Routine to load a PCX file */
+/* Routine to load a PCX file */
+static boolean PCX_LoadImage(ZFILE *zf, int in_bpr, int img_bpr,
+                            Image *image, int rows, boolean readpal);
 
 
 /*
@@ -129,35 +133,43 @@ Image *pcxLoad (char *fullname, ImageOptions *image_ops, boolean verbose)
 	xmax = xmax - xmin + 1;
 	ymax = ymax - ymin + 1;
 	in_bpr = pcxhd[66] + ( 256 * pcxhd[67] );
-	img_bpr = (xmax + 7)/8;		/* assumes monochrome image */
+        img_bpr = (xmax * pcxhd[3] + 7)/8; /* Recompute the number of bytes
+                                             per lines.  */
 
 	/* double check image */
 	if (xmax < 0 || ymax < 0 || in_bpr < img_bpr) {
 		zclose(zf);
 		return((Image *)NULL);
-		}
+	}
 
 	if (verbose)
 		printf("%s is a %dx%d PC Paintbrush image\n",name,xmax,ymax);
 
-	if (pcxhd[65] > 1) {
-		fprintf(stderr,"pcxLoad: %s - Unable to handle Color PCX image\n",name);
+        /* Only monochorme or 8bits paletized images are supported.  */
+        if (pcxhd[65] > 1 || !(pcxhd[3] == 1 || pcxhd[3] == 8)) {
+                fprintf(stderr,
+                        "pcxLoad: %s - Unsuported PCX type\n",
+                        name);
+
 		zclose(zf);
 		return((Image *)NULL);
-		}
+	}
 
 	znocache(zf);
 
-	/* Allocate pbm array. */
-	image = newBitImage(xmax,ymax);
+        /* Allocate image. */
+        if (pcxhd[3] == 1)
+          image = newBitImage(xmax, ymax);
+        else
+          image = newRGBImage(xmax, ymax, pcxhd[3]);
 	image->title = dupString(name);
 
 	/* Read compressed bitmap. */
-	if (!PCX_LoadImage( zf, in_bpr, img_bpr, image, ymax )) {
+	if (!PCX_LoadImage(zf, in_bpr, img_bpr, image, ymax, pcxhd[3] == 8)) {
 		fprintf(stderr,"pcxLoad: %s - Short read of PCX file\n",name);
 		zclose(zf);
 		return(image);
-    }
+	}
 
 	read_trail_opt(image_ops,zf,image,verbose);
 	zclose(zf);
@@ -173,7 +185,8 @@ Image *pcxLoad (char *fullname, ImageOptions *image_ops, boolean verbose)
 **	Returns FALSE if there was a short read.
 */
 
-static boolean PCX_LoadImage (ZFILE *zf, int in_bpr, int img_bpr, Image *image, int rows)
+static boolean PCX_LoadImage (ZFILE *zf, int in_bpr, int img_bpr,
+                             Image *image, int rows, boolean readpal)
 {
 	/* Goes like this: Read a byte.  If the two high bits are set,
 	** then the low 6 bits contain a repeat count, and the byte to
@@ -185,10 +198,12 @@ static boolean PCX_LoadImage (ZFILE *zf, int in_bpr, int img_bpr, Image *image, 
 	int row = 0;
 	int bytes_this_row = 0;
 	int b, i, cnt;
+        /* For binary image we need to reverse all bits.  */
+        int xor_mask = (image->type == IBITMAP) ? 0xff : 0;
 
 	ptr = &(image->data[0]);
 
-	while ((b = zgetc(zf)) != EOF) {
+	while (row < rows && (b = zgetc(zf)) != EOF) {
 
 		if ((b & 0xC0) == 0xC0) {
 			/* have a repetition count -- mask flag bits */
@@ -201,12 +216,14 @@ static boolean PCX_LoadImage (ZFILE *zf, int in_bpr, int img_bpr, Image *image, 
 			cnt = 1;		/* no repeating this one */
 			}
 
+                b ^= xor_mask;
+
 		for ( i = 0; i < cnt; i++ ) {
 			if ( row >= rows ) {
-				return TRUE;
+				break;
 				}
 			if (bytes_this_row < img_bpr)
-				*ptr++ = (unsigned char) (255 - b);
+				*ptr++ = (unsigned char) b;
 			if (++bytes_this_row == in_bpr) {
 				/* start of a new line */
 				row++;
@@ -214,6 +231,25 @@ static boolean PCX_LoadImage (ZFILE *zf, int in_bpr, int img_bpr, Image *image, 
 				}
 			}
 		}
+       /* Read a palette if needed.  */
+       if (readpal) {
+               /* The palette is separated from the pixels data by dummy
+                  byte equal to 12.  */
+               if ((b = zgetc(zf)) == EOF || b != 12)
+                       return FALSE;
+
+               for (cnt = 0; cnt < 256; ++cnt) {
+                       int r, g, b;
+                       if ((r = zgetc(zf)) == EOF
+                           || (g = zgetc(zf)) == EOF
+                           || (b = zgetc(zf)) == EOF)
+                               return FALSE;
+                       image->rgb.red[cnt] = r << 8;
+                       image->rgb.green[cnt] = g << 8;
+                       image->rgb.blue[cnt] = b << 8;
+               }
+               image->rgb.used = 256;
+       }
 
 	return TRUE;
 }
