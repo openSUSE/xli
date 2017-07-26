@@ -83,6 +83,7 @@ typedef struct {
 	float display_gamma;
 	char *dname;
 	boolean do_fork;
+	boolean forall;
 	boolean fillscreen;
 	boolean fit;
 	boolean fullscreen;

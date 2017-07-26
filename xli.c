@@ -155,6 +155,7 @@ int main(int argc, char *argv[])
 
 	globals.dname = NULL;
 	globals.fit = FALSE;
+	globals.forall = FALSE;
 	globals.fillscreen = FALSE;
 	globals.fullscreen = FALSE;
 	globals.go_to = NULL;
@@ -333,7 +334,8 @@ int main(int argc, char *argv[])
 		 * in fullscreen mode, set zoom factors to something reasonable
 		 */
 
-		if (first && ((globals.onroot && globals.fullscreen) ||
+		if ( (first || globals.forall) && 
+			      ((globals.onroot && globals.fullscreen) ||
 				globals.fillscreen) && !io->xzoom &&
 				!io->yzoom && !io->center) {
 			double wr, hr;
@@ -372,7 +374,8 @@ int main(int argc, char *argv[])
 		 * else if this is the first image on root
 		 * set its position and any border needed
 		 */
-		if (first && globals.onroot && (winwidth || winheight ||
+		if ( (first || globals.forall) && 
+				globals.onroot && (winwidth || winheight ||
 				io->center || io->ats || globals.fullscreen ||
 				globals.fillscreen)) {
 			int atx = io->atx, aty = io->aty;
@@ -529,6 +532,16 @@ int main(int argc, char *argv[])
 				io->rotate -= 360;
 			while (io->rotate < 0)
 				io->rotate += 360;
+			if ( globals.forall && 
+					((globals.onroot && globals.fullscreen) ||
+					 globals.fillscreen) && !io->center) {
+				double wr, hr,f;
+				wr = (double) globals.dinfo.width / inew->height;
+				hr = (double) globals.dinfo.height / inew->width;
+				f = (((wr < hr) ^ (globals.onroot && globals.fillscreen)) ?  wr : hr) * 100;
+				io->xzoom *= f/100.0;
+				io->yzoom *= f/100.0;
+			}
 			if (globals.verbose)
 				printf("Image rotation is now %d\n",
 					io->rotate);

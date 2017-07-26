@@ -42,6 +42,8 @@ so that it just fits the size of the screen. If -onroot is also specified,\n\
 it will be zoomed to completely fill the screen.",},
 	{"fit", FIT, NULL, "\
 Force the image(s) to use the default colormap.",},
+	{"forall", FORALL, NULL, "\
+Avoid fillscreen and onroot handling the first image specially.\n",},
 	{"fork", FORK, NULL, "\
 Background automatically.  Turns on -quiet.",},
 	{"fullscreen", FULLSCREEN, NULL, "\
@@ -390,6 +392,10 @@ int doGeneralOption(OptionId opid, char **argv, ImageOptions *persist_ops,
 
 	case FIT:
 		globals.fit = TRUE;
+		break;
+
+	case FORALL:
+		globals.forall = TRUE;
 		break;
 
 	case FORK:

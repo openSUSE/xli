@@ -34,6 +34,7 @@ typedef enum option_id {
 	FILLSCREEN,
 	FIT,
 	FORK,
+	FORALL,
 	FULLSCREEN,
 	GOTO,
 	GEOMETRY,
