@@ -96,6 +96,7 @@ int main(int argc, char *argv[])
 	persist_ops.xpmkeyc = 0;	/* none */
 	persist_ops.xzoom = 0;
 	persist_ops.yzoom = 0;
+	persist_ops.zoom_auto = FALSE;
 	persist_ops.iscale = 0;
 	persist_ops.iscale_auto = FALSE;
 
@@ -207,6 +208,7 @@ int main(int argc, char *argv[])
 			images[nimages].xpmkeyc = persist_ops.xpmkeyc;
 			images[nimages].xzoom = persist_ops.xzoom;
 			images[nimages].yzoom = persist_ops.yzoom;
+			images[nimages].zoom_auto = persist_ops.zoom_auto;
 			images[nimages].iscale_auto = persist_ops.iscale_auto;
 			nimages++;
 			INIT_IMAGE_OPTS(images[nimages]);
@@ -550,6 +552,7 @@ int main(int argc, char *argv[])
 				break;
 			}
 			io->xzoom = io->yzoom = 0;
+			io->zoom_auto = 0;
 			io->iscale_auto = 0;
 
 			if (globals.verbose) {

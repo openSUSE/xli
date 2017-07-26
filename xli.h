@@ -55,6 +55,7 @@ typedef struct {
 	char *title;		/* Override title on image */
 	unsigned int xzoom, yzoom;
 				/* zoom percentages */
+	boolean zoom_auto;	/* automatically zoom to fit on screen */
 	char *fg, *bg;		/* foreground/background colors if mono image */
 	boolean done_to;	/* TRUE if we have already looked for trailing
 				 * options

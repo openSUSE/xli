@@ -731,13 +731,20 @@ int doLocalOption(OptionId opid, char **argv, boolean setpersist,
 
 	case ZOOM:
 		if (argv[++a]) {
-			if (atoi(argv[a]) < 0) {
-				printf("Zoom argument must be positive (ignored).\n");
-				break;
+			if (!strcmp(argv[a], "auto")) {
+                                image_ops->zoom_auto = TRUE;
+                        } else {
+				if (atoi(argv[a]) < 0) {
+					printf("Zoom argument must be positive (ignored).\n");
+					break;
+				}
+				image_ops->xzoom = image_ops->yzoom = atoi(argv[a]);
+				image_ops->zoom_auto = FALSE;
 			}
-			image_ops->xzoom = image_ops->yzoom = atoi(argv[a]);
-			if (setpersist)
+			if (setpersist) {
 				persist_ops->xzoom = persist_ops->yzoom = image_ops->xzoom;
+				persist_ops->zoom_auto = image_ops->zoom_auto;
+			}
 		}
 		break;
 

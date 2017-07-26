@@ -105,6 +105,8 @@ char *tail(char *path)
 	return (t);
 }
 
+#define MIN(a,b) ( (a)<(b) ? (a) : (b))
+
 Image *processImage(DisplayInfo *dinfo, Image *iimage, ImageOptions *options)
 {
 	Image *image = iimage, *tmpimage;
@@ -133,6 +135,19 @@ Image *processImage(DisplayInfo *dinfo, Image *iimage, ImageOptions *options)
 		image = tmpimage;
 	}
 	/* zoom image */
+	if (options->zoom_auto) {
+		if (image->width > globals.dinfo.width * .9)
+			options->xzoom = globals.dinfo.width * 90 / image->width;
+		else
+			options->xzoom = 100;
+		if (image->height > globals.dinfo.height * .9)
+			options->yzoom = globals.dinfo.height * 90 / image->height;
+		else
+			options->yzoom = 100;
+		/* both dimensions should be shrunk by the same factor */
+		options->xzoom = options->yzoom =
+			MIN(options->xzoom, options->yzoom);
+	}
 	if (options->xzoom || options->yzoom) {
 		/* if the image is to be blown up, compress before doing it */
 		if (!options->colors && RGBP(image) &&	

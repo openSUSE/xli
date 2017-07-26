@@ -314,6 +314,9 @@ more information.  Technically the percentage actually zoomed is the
 square of the number supplied since the zoom is to both axes, but I
 opted for consistency instead of accuracy.
 .TP
+\-zoom auto
+Zoom large images to fit the screen; don't zoom small images.
+.TP
 -newoptions
 Reset options that propagate.  The \fI-bright, -colors, -colordither, -delay,
 -dither, -gamma, -gray, -normalize, -smooth, -xzoom, -yzoom\fR, and

@@ -20,7 +20,6 @@ add vicar reader, copyright Noel Gorelick, gorelick@asu.edu, description:
 developed by NASA/JPL.'
 
 make fast image scaling a subfeature of -zoom, eliminate -iscale
-and add -zoom auto
 
 add a TIFF reader?
 
