@@ -800,8 +800,34 @@ char imageInWindow(DisplayInfo *dinfo, Image *image, ImageOptions *options, int 
 				XComposeStatus status;
 				char ret;
 				Cursor cursor;
+				int num;
 
-				if (XLookupString(&event.key, buf, 128, &ks, &status) != 1)
+				num = XLookupString(&event.key, buf, 128, &ks, &status);
+				if( num != 1 && ((image->width > winwidth) || (image->height > winheight))) {
+					switch (ks) {
+					case XK_Left:
+					case XK_KP_Left:
+						pixx += winwidth/10+1;
+						placeImage(disp, image->width, image->height, winwidth, winheight, &pixx, &pixy);
+						break;
+					case XK_Right:
+					case XK_KP_Right:
+						pixx -= winwidth/10+1;
+						placeImage(disp, image->width, image->height, winwidth, winheight, &pixx, &pixy);
+						break;
+					case XK_Up:
+					case XK_KP_Up:
+						pixy += winheight/10+1;
+						placeImage(disp, image->width, image->height, winwidth, winheight, &pixx, &pixy);
+						break;
+					case XK_Down:
+					case XK_KP_Down:
+						pixy -= winheight/10+1;
+						placeImage(disp, image->width, image->height, winwidth, winheight, &pixx, &pixy);
+						break;
+					}
+				}
+				if (num != 1)
 					break;
 				ret = buf[0];
 				if (isupper(ret))
