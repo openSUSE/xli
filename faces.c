@@ -56,9 +56,15 @@ isFaces(ZFILE *zf, char *name, char *fname, char *lname, unsigned int *wp, unsig
     if (! strcmp(buf, "\n"))
       break;
     if (!strncmp(buf, "FirstName:", 10))
-      strcpy(fname, buf + 11);
+      {
+       strncpy(fname, buf + 11, BUFSIZ - 1);
+       fname[BUFSIZ - 1] = '\0';
+      }
     else if (!strncmp(buf, "LastName:", 9))
-      strcpy(lname, buf + 10);
+      {
+       strncpy(lname, buf + 10, BUFSIZ - 1);
+       lname[BUFSIZ - 1] = '\0';
+      }
     else if (!strncmp(buf, "Image:", 6)) {
       if (sscanf(buf + 7, "%d%d%d", &iw, &ih, &id) != 3) {
 	fprintf(stderr,"facesLoad: %s - Bad image\n", name);

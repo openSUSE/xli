@@ -52,28 +52,29 @@ Image *zoom(Image *oimage, unsigned int xzoom, unsigned int yzoom, boolean verbo
     if (verbose)
       printf("  Zooming image Y axis by %d%%...", yzoom);
     if (changetitle)
-      sprintf(buf, "%s (Y zoom %d%%)", oimage->title, yzoom);
+      snprintf(buf, BUFSIZ, "%s (Y zoom %d%%)", oimage->title, yzoom);
   }
   else if (!yzoom) {
     if (verbose)
       printf("  Zooming image X axis by %d%%...", xzoom);
     if (changetitle)
-      sprintf(buf, "%s (X zoom %d%%)", oimage->title, xzoom);
+      snprintf(buf, BUFSIZ, "%s (X zoom %d%%)", oimage->title, xzoom);
   }
   else if (xzoom == yzoom) {
     if (verbose)
       printf("  Zooming image by %d%%...", xzoom);
     if (changetitle)
-      sprintf(buf, "%s (%d%% zoom)", oimage->title, xzoom);
+      snprintf(buf, BUFSIZ, "%s (%d%% zoom)", oimage->title, xzoom);
   }
   else {
     if (verbose)
       printf("  Zooming image X axis by %d%% and Y axis by %d%%...",
 	     xzoom, yzoom);
     if (changetitle)
-      sprintf(buf, "%s (X zoom %d%% Y zoom %d%%)", oimage->title,
+      snprintf(buf, BUFSIZ, "%s (X zoom %d%% Y zoom %d%%)", oimage->title,
 	    xzoom, yzoom);
   }
+  buf[BUFSIZ-1] = '\0';
   if (!changetitle)
     strcpy(buf,oimage->title);
 

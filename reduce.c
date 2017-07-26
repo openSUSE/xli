@@ -178,7 +178,8 @@ Image *reduce(Image *image, unsigned colors, int ditherf, float gamma,
 	/* get destination image */
 	depth = colorsToDepth(OutColors);
 	new_image = newRGBImage(image->width, image->height, depth);
-	sprintf(buf, "%s (%d colors)", image->title, OutColors);
+	snprintf(buf, BUFSIZ, "%s (%d colors)", image->title, OutColors);
+	buf[BUFSIZ-1] = '\0';
 	new_image->title = dupString(buf);
 	new_image->gamma = image->gamma;
 

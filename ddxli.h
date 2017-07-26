@@ -36,11 +36,13 @@
 
 /* equate bcopy with memcpy and bzero with memset where appropriate. */
 #ifdef HAS_MEMCPY
+#ifndef __linux__
 #ifndef bcopy
 #define bcopy(S,D,N) memcpy((char *)(D),(char *)(S),(N))
 #endif
 #ifndef bzero
 #define bzero(P,N) memset((P),'\0',(N))
+#endif /* __linux__ */
 #endif
 #ifndef bfill
 #define bfill(P,N,C) memset((P),(C),(N))
